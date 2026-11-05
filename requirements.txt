@@ -1,1 +1,18 @@
+# Aplicação web
 Flask>=3.0,<4.0
+
+# Banco de dados e migrações
+Flask-SQLAlchemy>=3.1,<4.0
+Flask-Migrate>=4.0,<5.0
+psycopg[binary]>=3.2,<4.0
+
+# Autenticação e formulários
+Flask-Login>=0.6,<1.0
+Flask-WTF>=1.2,<2.0
+email-validator>=2.2,<3.0
+
+# Configuração por variáveis de ambiente
+python-dotenv>=1.0,<2.0
+
+# Testes
+pytest>=8.0,<9.0
