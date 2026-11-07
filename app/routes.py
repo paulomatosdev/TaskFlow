@@ -14,6 +14,11 @@ def index():
     )
 
 
+@main.get("/health")
+def health():
+    return jsonify({"status": "ok"})
+
+
 @main.get("/about")
 def about():
     return jsonify({"message": "Sobre o TaskFlow API", "status": "ok"})
