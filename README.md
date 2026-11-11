@@ -9,8 +9,10 @@ autenticação, CRUD de tarefas, quadro Kanban e indicadores de produtividade.
 Neste momento, o projeto possui uma base Flask funcional com:
 
 - Factory `create_app`.
-- Rota inicial (`GET /`).
-- Endpoint de saúde (`GET /health`).
+- Configuração por ambiente em `config.py`, com valores sensíveis lidos de
+  variáveis de ambiente (`.env`).
+- Rotas `GET /`, `/health`, `/about`, `/contact` e `/tasks/<id>` (veja
+  [Rotas disponíveis](#rotas-disponíveis)).
 - Ambiente virtual e dependências iniciais configurados.
 
 As funcionalidades de autenticação, banco de dados e gerenciamento de tarefas
@@ -68,6 +70,30 @@ Instale as dependências:
 python -m pip install -r requirements.txt
 ```
 
+## Configuração
+
+As configurações sensíveis ficam em variáveis de ambiente, nunca no código.
+Copie o arquivo de exemplo e preencha os valores:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+| Variável     | Descrição                                          | Padrão        |
+| ------------ | -------------------------------------------------- | ------------- |
+| `APP_ENV`    | Ambiente: `development` ou `production`.           | `development` |
+| `SECRET_KEY` | Chave secreta do Flask. Obrigatória em produção.   | —             |
+
+Para gerar uma chave segura:
+
+```powershell
+python -c "import secrets; print(secrets.token_hex(32))"
+```
+
+Em desenvolvimento, se `SECRET_KEY` não for definida, uma chave aleatória é
+gerada a cada execução (as sessões são perdidas ao reiniciar). Em produção, a
+aplicação não inicia sem `SECRET_KEY`.
+
 ## Executar localmente
 
 Com o ambiente virtual ativado:
@@ -82,10 +108,44 @@ A aplicação ficará disponível em:
 http://127.0.0.1:5000
 ```
 
-Para verificar se a aplicação está respondendo, acesse:
+## Rotas disponíveis
 
-- `GET /` — rota inicial.
-- `GET /health` — endpoint de saúde.
+Todas as rotas respondem em JSON.
+
+| Método | Rota              | Descrição                                       |
+| ------ | ----------------- | ----------------------------------------------- |
+| GET    | `/`               | Rota inicial; confirma que a API está no ar.    |
+| GET    | `/health`         | Endpoint de saúde (`{"status": "ok"}`).         |
+| GET    | `/about`          | Informações sobre o TaskFlow.                   |
+| GET    | `/contact`        | Informações de contato.                         |
+| GET    | `/tasks/<id>`     | Detalhes de uma tarefa (ainda simulado).        |
+
+> **Observação:** `GET /tasks/<id>` ainda não consulta o banco de dados — apenas
+> devolve uma mensagem com o número informado. O CRUD real de tarefas será
+> implementado após a integração com SQLAlchemy.
+
+## Estrutura atual
+
+```text
+TaskFlow/
+├── app/
+│   ├── __init__.py      # factory create_app
+│   └── routes.py        # blueprint "main" com as rotas atuais
+├── .env.example         # modelo das variáveis de ambiente
+├── .gitignore
+├── config.py            # configurações por ambiente
+├── project.md           # especificação completa do projeto
+├── README.md
+├── requirements.txt
+└── run.py               # ponto de entrada da aplicação
+```
+
+O `.env` (com os valores reais) e a pasta `.venv` ficam fora do Git. Para
+gerar um pacote ZIP somente com os arquivos versionados:
+
+```powershell
+git archive --format=zip -o TaskFlow.zip HEAD
+```
 
 ## Estrutura planejada
 
@@ -112,7 +172,7 @@ TaskFlow/
 
 ## Próximas etapas
 
-1. Configurar a aplicação por ambiente e variáveis no `.env`.
+1. ~~Configurar a aplicação por ambiente e variáveis no `.env`.~~ ✔
 2. Integrar SQLAlchemy e criar os modelos `User` e `Task`.
 3. Implementar cadastro, login, logout e controle de acesso.
 4. Implementar o CRUD de tarefas.

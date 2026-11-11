@@ -1,6 +1,38 @@
+# Python
 __pycache__/
 *.py[cod]
+
+# Ambientes virtuais
 .venv/
+venv/
+env/
+
+# Variáveis de ambiente (segredos) — o modelo .env.example é versionado
 .env
+.env.*
+!.env.example
+
+# Testes e cobertura
 .pytest_cache/
+.coverage
+htmlcov/
+
+# Flask / banco de dados local
 instance/
+*.db
+*.sqlite3
+
+# Pacotes e builds
+*.zip
+build/
+dist/
+*.egg-info/
+
+# Logs
+*.log
+
+# Editores e sistema operacional
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
