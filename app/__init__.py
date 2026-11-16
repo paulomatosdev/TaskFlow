@@ -1,7 +1,6 @@
 from flask import Flask
-
-from config import config_by_name
-
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import DeclarativeBase
 
 # Application factory
 def create_app(config_name="development"):
@@ -19,6 +18,17 @@ def create_app(config_name="development"):
         )
 
     from app.routes import main
+
+    
+    class Base(DeclarativeBase):
+        pass
+
+    db = SQLAlchemy(model_class=Base)
+    app = Flask(__name__)
+
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///dados.db"
+
+    db.init_app(app)
 
     app.register_blueprint(main)
     return app
