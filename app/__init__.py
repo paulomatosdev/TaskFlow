@@ -1,6 +1,8 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import DeclarativeBase
+
+from app.extensions import db
+from config import config_by_name
+
 
 # Application factory
 def create_app(config_name="development"):
@@ -17,18 +19,15 @@ def create_app(config_name="development"):
             "SECRET_KEY (veja o arquivo .env.example)."
         )
 
-    from app.routes import main
-
-    
-    class Base(DeclarativeBase):
-        pass
-
-    db = SQLAlchemy(model_class=Base)
-    app = Flask(__name__)
-
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///dados.db"
-
+    # Extensões
     db.init_app(app)
 
+    # Importa os modelos para que fiquem registrados no db.metadata
+    from app import models  # noqa: F401
+
+    # Blueprints
+    from app.routes import main
+
     app.register_blueprint(main)
+
     return app
