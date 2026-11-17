@@ -132,7 +132,8 @@ Relacionamento:
 TaskFlow/
 ├── app/
 │   ├── __init__.py
-│   ├── models.py
+│   ├── extensions.py
+│   ├── models/
 │   ├── auth/
 │   │   ├── routes.py
 │   │   └── forms.py

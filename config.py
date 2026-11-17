@@ -10,7 +10,9 @@ load_dotenv()
 class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY")
     DEBUG = False
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL", "sqlite:///dados.db")
+    SQLALCHEMY_DATABASE_URI = os.environ.get(
+        "DATABASE_URL", "sqlite:///dados.db"
+    )
 
 
 class DevelopmentConfig(Config):
@@ -24,7 +26,15 @@ class ProductionConfig(Config):
     pass
 
 
+class TestingConfig(Config):
+    TESTING = True
+    SECRET_KEY = "chave-de-teste"
+    # Banco em memória: cada teste começa limpo e não toca no dados.db
+    SQLALCHEMY_DATABASE_URI = "sqlite://"
+
+
 config_by_name = {
     "development": DevelopmentConfig,
     "production": ProductionConfig,
+    "testing": TestingConfig,
 }
