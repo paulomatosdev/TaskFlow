@@ -22,13 +22,9 @@ class Task(db.Model):
     due_date: Mapped[Optional[date]] = mapped_column(Date)
     category: Mapped[Optional[str]] = mapped_column(String(50))
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), index=True)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=utcnow
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=utcnow, onupdate=utcnow
-    )
-
+        DateTime(timezone=True), default=utcnow, onupdate=utcnow)
     user: Mapped[User] = relationship(back_populates="tasks")
 
     def __repr__(self) -> str:

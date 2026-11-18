@@ -13,6 +13,5 @@ def test_config_desconhecida_gera_erro():
         create_app("nao-existe")
 
 
-def test_migrate_registrado(app):
-    assert "migrate" in app.extensions
-    assert "sqlalchemy" in app.extensions
+def test_extensoes_registradas(app):
+    assert {"migrate", "sqlalchemy"} <= app.extensions.keys()

@@ -3,17 +3,13 @@ import secrets
 
 from dotenv import load_dotenv
 
-# Carrega as variáveis definidas no arquivo .env (se existir)
 load_dotenv()
 
 
 class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY")
     DEBUG = False
-    
-    SQLALCHEMY_DATABASE_URI = (
-        os.environ.get("DATABASE_URL") or "sqlite:///dados.db"
-    )
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") or "sqlite:///dados.db"
 
 
 class DevelopmentConfig(Config):
@@ -28,7 +24,6 @@ class ProductionConfig(Config):
 class TestingConfig(Config):
     TESTING = True
     SECRET_KEY = "chave-de-teste"
-    
     SQLALCHEMY_DATABASE_URI = "sqlite://"
 
 
