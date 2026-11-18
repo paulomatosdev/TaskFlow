@@ -1,5 +1,7 @@
 import pytest
+from sqlalchemy.exc import IntegrityError
 
+from app.auth import routes
 from app.models import User
 
 USUARIO = {"name": "Ana", "email": "ana@exemplo.com",
@@ -19,11 +21,6 @@ def total_usuarios(db):
     return db.session.query(User).count()
 
 
-@pytest.fixture
-def usuario(client):
-    cadastrar(client)
-
-
 def test_cadastro_cria_usuario(client, db):
     resposta = cadastrar(client, name="  Ana  ", email="  ANA@Exemplo.com ")
     corpo = resposta.get_json()
@@ -33,11 +30,52 @@ def test_cadastro_cria_usuario(client, db):
     assert db.session.scalar(db.select(User)).check_password("senha1234")
 
 
-def test_cadastro_email_duplicado(client, db, usuario):
+def test_cadastro_email_duplicado_retorna_409(client, db, usuario):
     resposta = cadastrar(client, email="ANA@exemplo.com")
-    assert resposta.status_code == 400
-    assert resposta.get_json()["errors"]["email"] == ["Este e-mail já está cadastrado."]
+    corpo = resposta.get_json()
+    assert resposta.status_code == 409 and corpo["status"] == "error"
+    assert corpo["errors"]["email"] == [routes.EMAIL_DUPLICADO]
     assert total_usuarios(db) == 1
+
+
+def test_dados_invalidos_tem_prioridade_sobre_duplicidade(client, usuario):
+    resposta = cadastrar(client, password="curta", confirm_password="curta")
+    assert resposta.status_code == 400 and "password" in resposta.get_json()["errors"]
+
+
+def test_corrida_no_cadastro_retorna_409(client, db, usuario, monkeypatch):
+    # Simula a corrida: a checagem prévia não vê o e-mail (a outra requisição ainda
+    # não tinha gravado), então quem barra o INSERT é o índice único do banco.
+    original = routes._email_cadastrado
+    chamadas = []
+
+    def checagem_atrasada(email):
+        chamadas.append(email)
+        return False if len(chamadas) == 1 else original(email)
+
+    monkeypatch.setattr(routes, "_email_cadastrado", checagem_atrasada)
+    resposta = cadastrar(client)
+    corpo = resposta.get_json()
+    assert resposta.status_code == 409 and corpo["errors"]["email"] == [routes.EMAIL_DUPLICADO]
+    assert "UNIQUE" not in str(corpo) and "constraint" not in str(corpo).lower()
+    assert len(chamadas) == 2  # checagem prévia + reconsulta após o rollback
+    assert total_usuarios(db) == 1  # rollback feito: a sessão segue utilizável
+
+
+def test_outro_integrity_error_nao_vira_409(client, db, monkeypatch):
+    # Senha sem hash -> viola NOT NULL em password_hash: não é e-mail duplicado.
+    monkeypatch.setattr(User, "set_password", lambda self, senha: None)
+    with pytest.raises(IntegrityError):
+        cadastrar(client)
+    assert total_usuarios(db) == 0  # só funciona se a sessão sofreu rollback
+
+
+def test_erro_interno_retorna_json_sem_detalhes(app, client, monkeypatch):
+    app.config["PROPAGATE_EXCEPTIONS"] = False  # comportamento de produção
+    monkeypatch.setattr(User, "set_password", lambda self, senha: None)
+    resposta = cadastrar(client)
+    assert resposta.status_code == 500
+    assert resposta.get_json() == {"status": "error", "message": "Erro interno do servidor."}
 
 
 @pytest.mark.parametrize("dados, campo", [
@@ -100,3 +138,4 @@ def test_logout_encerra_sessao(client, usuario):
 
 def test_logout_sem_login_retorna_401(client):
     assert client.post("/logout", json={}).status_code == 401
+

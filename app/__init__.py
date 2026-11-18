@@ -1,6 +1,7 @@
 from flask import Flask
 
-from app.extensions import db, login_manager, migrate
+from app.errors import registrar_handlers
+from app.extensions import csrf, db, login_manager, migrate
 from config import config_by_name
 
 
@@ -15,6 +16,8 @@ def create_app(config_name="development"):
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
+    csrf.init_app(app)  # valida o token em todo POST/PUT/PATCH/DELETE
+    registrar_handlers(app)
 
     from app import models  # noqa: F401  (registra os modelos no db.metadata)
     from app.auth import auth
