@@ -138,4 +138,3 @@ def test_logout_encerra_sessao(client, usuario):
 
 def test_logout_sem_login_retorna_401(client):
     assert client.post("/logout", json={}).status_code == 401
-

@@ -8,6 +8,11 @@ def index():
     return jsonify({"message": "TaskFlow API está funcionando.", "status": "ok"})
 
 
+@main.get("/health")
+def health():
+    return jsonify({"status": "ok"})
+
+
 @main.get("/about")
 def about():
     return jsonify({"message": "Sobre o TaskFlow API", "status": "ok"})
@@ -16,5 +21,3 @@ def about():
 @main.get("/contact")
 def contacts():
     return jsonify({"message": "Contatos do TaskFlow API", "status": "ok"})
-
-
