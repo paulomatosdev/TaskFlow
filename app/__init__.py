@@ -22,7 +22,8 @@ def create_app(config_name="development"):
     from app import models  # noqa: F401  (registra os modelos no db.metadata)
     from app.auth import auth
     from app.routes import main
+    from app.tasks import tasks
 
-    for blueprint in (main, auth):
+    for blueprint in (main, auth, tasks):
         app.register_blueprint(blueprint)
     return app
