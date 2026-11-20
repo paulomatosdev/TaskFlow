@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from app.models.user import User
 
 
+
 class Task(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String(150))
