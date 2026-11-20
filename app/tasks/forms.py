@@ -4,7 +4,6 @@ from wtforms.validators import AnyOf, DataRequired, Length, Optional
 from app.forms import ApiForm, strip, strip_ou_none
 
 PRIORIDADES = ("baixa", "media", "alta")
-STATUS = ("pendente", "em_andamento", "concluida")
 
 
 class TaskForm(ApiForm):
@@ -18,5 +17,3 @@ class TaskForm(ApiForm):
                          validators=[Optional()])
     category = StringField("Categoria", filters=[strip_ou_none],
                            validators=[Optional(), Length(max=50)])
-    
-    
